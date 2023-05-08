@@ -1,4 +1,4 @@
-package com.example.ecoandrich_may_be;
+package com.ecoAndRich.ecoandrich_may_be;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
