@@ -12,8 +12,11 @@ public class DepartmentResponseDto {
 
   private String depName;
 
+  private long locationId;
+
   public DepartmentResponseDto(Department department) {
     this.depId = department.getId();
     this.depName = department.getDepName();
+    this.locationId = department.getLocation().getId();
   }
 }

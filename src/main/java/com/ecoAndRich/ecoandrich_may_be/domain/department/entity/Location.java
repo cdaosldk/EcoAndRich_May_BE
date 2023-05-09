@@ -1,5 +1,7 @@
 package com.ecoAndRich.ecoandrich_may_be.domain.department.entity;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -40,5 +42,5 @@ public class Location {
   }
 
   @OneToMany(mappedBy = "location")
-  private Department department = new Department();
+  private final List<Department> department = new ArrayList<>();
 }

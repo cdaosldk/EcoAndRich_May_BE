@@ -1,6 +1,7 @@
 package com.ecoAndRich.ecoandrich_may_be.domain.department.entity;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -31,7 +32,7 @@ public class Department {
     this.depName = depName;
   }
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "location_id")
   private final Location location = new Location();
 }
