@@ -4,6 +4,5 @@ import com.ecoAndRich.ecoandrich_may_be.domain.department.dto.DepartmentResponse
 
 public interface DepartmentService {
 
-  public DepartmentResponseDto getDepartmentAndLocation(long depId);
-
+  DepartmentResponseDto getDepartmentAndLocation(long depId);
 }

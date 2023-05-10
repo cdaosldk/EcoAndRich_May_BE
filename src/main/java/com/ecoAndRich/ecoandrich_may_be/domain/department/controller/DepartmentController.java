@@ -24,5 +24,4 @@ public class DepartmentController {
     return ResponseEntity.ok().headers(setHttpHeaders.setHeaderTypeJson()).body(
         departmentService.getDepartmentAndLocation(depId));
   }
-
 }
