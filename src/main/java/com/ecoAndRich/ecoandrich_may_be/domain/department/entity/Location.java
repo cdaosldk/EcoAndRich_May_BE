@@ -2,45 +2,33 @@ package com.ecoAndRich.ecoandrich_may_be.domain.department.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
 
 @Getter
 @NoArgsConstructor
 @Entity
-@DynamicInsert
-@DynamicUpdate
+@Table(name = "locations")
 public class Location {
-
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
-
+  @Column(name = "street_address")
   private String streetAddress;
-
+  @Column(name = "postal_code")
   private String posCode;
-
+  @Column(name = "city")
   private String city;
-
+  @Column(name = "country_id")
   private char countryId;
-
-  @Builder
-  public Location(String streetAddress, String posCode, String city, char countryId) {
-    this.streetAddress = streetAddress;
-    this.posCode = posCode;
-    this.city = city;
-    this.countryId = countryId;
-  }
-
   @OneToMany(mappedBy = "location")
-  private final List<Department> department = new ArrayList<>();
+  private final List<Department> departments = new ArrayList<>();
 }
