@@ -11,6 +11,6 @@ public interface EmployeeService {
 
   public JobHistoryResponseDto getJobHistoryInformation(EmployeeIdAndStartDate employeeIdAndStartDate);
 
-  public EmployeeIdAndStartDate findEmbeddedId(long employeeId, LocalDate startDate);
+  public EmployeeIdAndStartDate createEmbeddedId(long employeeId, LocalDate startDate);
 
 }

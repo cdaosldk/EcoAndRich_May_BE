@@ -21,24 +21,29 @@ public class EmployeeServiceImpl implements EmployeeService{
 
   @Override
   public EmployeeResponseDto getEmployeeInformation(long employeeId) {
-    return null;
+    Employee employee = findEmployee(employeeId);
+    return new EmployeeResponseDto(employee);
   }
 
   @Override
   public JobHistoryResponseDto getJobHistoryInformation(EmployeeIdAndStartDate employeeIdAndStartDate) {
-    return null;
+    JobHistory jobHistory = findJobHistory(employeeIdAndStartDate);
+    return new JobHistoryResponseDto(jobHistory);
   }
 
-  @Override
-  public EmployeeIdAndStartDate findEmbeddedId(long employeeId, LocalDate startDate) {
-    return null;
+  public EmployeeIdAndStartDate createEmbeddedId(long employeeId, LocalDate startDate) {
+    return new EmployeeIdAndStartDate(employeeId, startDate);
   }
 
   private Employee findEmployee(long employeeId) {
-    return null;
+    return employeeRepository.findById(employeeId).orElseThrow(
+        () -> new IllegalArgumentException("존재하지 않는 직원입니다.")
+    );
   }
 
   private JobHistory findJobHistory(EmployeeIdAndStartDate employeeIdAndStartDate) {
-    return null;
+    return jobHistoryRepository.findById(employeeIdAndStartDate).orElseThrow(
+        () -> new IllegalArgumentException("존재하지 않는 이력입니다.")
+    );
   }
 }

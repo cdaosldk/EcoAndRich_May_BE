@@ -31,6 +31,6 @@ public class EmployeeController {
   public ResponseEntity<JobHistoryResponseDto> getJobhistoryInformation(@PathVariable long employeeId, @PathVariable
       LocalDate startDate) {
     return ResponseEntity.ok().headers(setHttpHeaders.setHeaderTypeJson()).body(
-        employeeService.getJobHistoryInformation(employeeService.findEmbeddedId(employeeId, startDate)));
+        employeeService.getJobHistoryInformation(employeeService.createEmbeddedId(employeeId, startDate)));
   }
 }
