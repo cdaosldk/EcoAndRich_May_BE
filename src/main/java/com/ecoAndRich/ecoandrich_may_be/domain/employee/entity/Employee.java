@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 public class Employee extends TimeStamped {
 
   @Id
+  @Column(name = "employee_id")
   private long id;
 
   @Column(name = "first_name")

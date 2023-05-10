@@ -10,6 +10,7 @@ import com.ecoAndRich.ecoandrich_may_be.domain.employee.repository.JobHistoryRep
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,17 +21,21 @@ public class EmployeeServiceImpl implements EmployeeService{
   private final JobHistoryRepository jobHistoryRepository;
 
   @Override
+  @Transactional(readOnly = true)
   public EmployeeResponseDto getEmployeeInformation(long employeeId) {
     Employee employee = findEmployee(employeeId);
     return new EmployeeResponseDto(employee);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public JobHistoryResponseDto getJobHistoryInformation(EmployeeIdAndStartDate employeeIdAndStartDate) {
     JobHistory jobHistory = findJobHistory(employeeIdAndStartDate);
     return new JobHistoryResponseDto(jobHistory);
   }
 
+  @Override
+  @Transactional
   public EmployeeIdAndStartDate createEmbeddedId(long employeeId, LocalDate startDate) {
     return new EmployeeIdAndStartDate(employeeId, startDate);
   }

@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 public class Jobs {
 
   @Id
+  @Column(name = "job_id")
   private String id;
 
   @Column(name = "job_title")

@@ -23,6 +23,7 @@ import lombok.NoArgsConstructor;
 public class Department {
 
   @Id
+  @Column(name = "department_id")
   private long id;
 
   @Column(name = "department_name")

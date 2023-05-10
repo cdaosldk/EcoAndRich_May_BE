@@ -7,6 +7,7 @@ import com.ecoAndRich.ecoandrich_may_be.domain.department.repository.DepartmentR
 import com.ecoAndRich.ecoandrich_may_be.domain.department.repository.LocationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +18,7 @@ public class DepartmentServiceImpl implements DepartmentService{
   private final LocationRepository locationRepository;
 
   @Override
+  @Transactional(readOnly = true)
   public DepartmentResponseDto getDepartmentAndLocation(long depId) {
     Department department = findDepartment(depId);
     findLocation(department.getLocation().getId());

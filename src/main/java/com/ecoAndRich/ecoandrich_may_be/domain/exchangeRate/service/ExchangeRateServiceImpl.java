@@ -1,115 +1,63 @@
 package com.ecoAndRich.ecoandrich_may_be.domain.exchangeRate.service;
 
-import com.ecoAndRich.ecoandrich_may_be.domain.exchangeRate.repository.ExchangeRateRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.globalorder.btrips.ext.domain.ExchangeRateEntity;
-import com.globalorder.btrips.ext.dto.ExchangeRate;
+import com.ecoAndRich.ecoandrich_may_be.domain.exchangeRate.dto.ExchangeRateResponseDto;
+import com.ecoAndRich.ecoandrich_may_be.domain.exchangeRate.entity.ExchangeRate;
+import com.google.gson.Gson;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
-public class ExchangeRateServiceImpl {
+public class ExchangeRateServiceImpl implements ExchangeRateService {
 
-  private final ExchangeRateRepository exchangeRateRepository;
+  @Override
+  @Transactional(readOnly = true)
+  public ExchangeRateResponseDto getExchangeRate(String searchDate, String curUnit){
+    Gson gson = new Gson();
 
-  private OkHttpClient okHttpClient;
+    ExchangeRate exchangeRate = gson.fromJson(getJsonReponse(searchDate, curUnit), ExchangeRate.class);
 
-  private static final ObjectMapper objectMapper = new ObjectMapper();
-
-  private final String EXCHANGE_RATE_URL = "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON";
-  private final String DATE_FORMATTER = "yyyyMMdd";
-  private final String DATA = "AP01";
-  private final String AUTHKEY = "H9TGLNKNDT7C1MhsVpY7JrGoW6brt2MX";
-
-
-  public ExchangeRateEntity saveExchangeRate(LocalDateTime kst) throws Exception {
-
-    LocalDateTime utc = LocalDateTime.now(ZoneOffset.UTC);
-
-    String url = createRequestUrl(kst);
-
-    okHttpClient = new OkHttpClient();
-    Request request = new Request.Builder()
-        .url(url)
+    return ExchangeRateResponseDto.builder()
+        .curNm(exchangeRate.getCurNm())
+        .ttb(exchangeRate.getTtb())
+        .tts(exchangeRate.getTts())
+        .dealBasR(exchangeRate.getDealBasR())
+        .bkpr(exchangeRate.getBkpr())
+        .yyEfeeR(exchangeRate.getYyEfeeR())
+        .tenDdEfeeR(exchangeRate.getTenDdEfeeR())
+        .kftcDealBasR(exchangeRate.getKftcDealBasR())
+        .kftcBkpr(exchangeRate.getKftcBkpr())
         .build();
-    Response response = okHttpClient.newCall(request).execute();
-
-    if (!response.isSuccessful()) {
-      log.error("ExchangeRate::: " + response.code() + "/" + response.body().string());
-      throw new Exception();
-    }
-
-    String responseBody = response.body().string();
-
-    if (notWorkingDay((responseBody))) {
-      return exchangeRateRepository.findById("USD").orElse(null);
-    }
-
-    //JSON to List<Object>
-    List<ExchangeRate.Response> exchangeRates = Arrays.asList(objectMapper.readValue(responseBody, ExchangeRate.Response[].class));
-
-    ExchangeRate.Response USD = getUSD(exchangeRates);
-
-    log.info("ExchangeRate::: " + USD);
-
-    ExchangeRateEntity exchangeRateEntity = ExchangeRateEntity.builder()
-        .curNm(USD.getCurUnit())
-        .krw(parseToDecimal(USD.getDealBasR()))
-        .updatedTime(utc).build();
-
-    return exchangeRateRepository.save(exchangeRateEntity);
   }
 
-  //ExchangeEntity 환율 정보
-  public ExchangeRateEntity findExchangeRate() {
-    return exchangeRateRepository.findById("USD").orElseThrow(() -> new RuntimeException("환율정보가 없습니다."));
-  }
+  private String getJsonReponse(String searchDate, String curUnit) {
+    String jsonResponse = null;
+    try {
+      String EXCHANGE_RATE_URL = "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=qcJXI7eDvlXgmlVwAPkwymkXMAv2GTRs&data=AP01";
+      URL url = new URL(EXCHANGE_RATE_URL + "&" + searchDate + "&" + curUnit);
+      HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+      httpURLConnection.setRequestMethod("GET");
 
-  //비영업일 체크
-  private boolean notWorkingDay(String responseBody) {
-    return responseBody.equals("[]");
-  }
+      if(httpURLConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
+        StringBuffer response = new StringBuffer();
 
-  //환율 콤마 제거
-  protected BigDecimal parseToDecimal(String dealBasR) {
-    int commaPosition = dealBasR.indexOf(',');
-    String removeCommaDealBasR = dealBasR.substring(0, commaPosition) + dealBasR.substring(commaPosition + 1);
-    return new BigDecimal(removeCommaDealBasR);
-  }
-
-  private ExchangeRate.Response getUSD(List<ExchangeRate.Response> exchangeRates) {
-    //TODO: 리팩토링 if문 중첩 없애기
-    for (ExchangeRate.Response ex : exchangeRates) {
-      if (ex.getCurUnit().equals("USD")) {
-        return ex;
+        while (reader.readLine() != null) {
+          response.append(reader.readLine());
+        }
+        reader.close();
+        jsonResponse = response.toString();
       }
+      httpURLConnection.disconnect();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
-    return new ExchangeRate.Response();
-  }
-
-  //수출입은행 비영업일 때 이전 영업일 데이터 요청
-  private String createRequestUrl(LocalDateTime workingDay) {
-    StringBuilder urlBuilder = new StringBuilder();
-    urlBuilder.append(EXCHANGE_RATE_URL);
-    urlBuilder.append("?authkey=");
-    urlBuilder.append(AUTHKEY);
-    urlBuilder.append("&searchdate=");
-    urlBuilder.append(workingDay.format(DateTimeFormatter.ofPattern(DATE_FORMATTER)));
-    urlBuilder.append("&data=");
-    urlBuilder.append(DATA);
-    return urlBuilder.toString();
+    return jsonResponse;
   }
 }

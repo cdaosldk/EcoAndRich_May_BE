@@ -9,7 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -20,15 +19,21 @@ import lombok.NoArgsConstructor;
 public class Location {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "location_id")
   private long id;
+
   @Column(name = "street_address")
   private String streetAddress;
+
   @Column(name = "postal_code")
   private String posCode;
+
   @Column(name = "city")
   private String city;
+
   @Column(name = "country_id")
   private char countryId;
+
   @OneToMany(mappedBy = "location")
   private final List<Department> departments = new ArrayList<>();
 }
